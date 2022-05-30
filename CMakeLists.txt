@@ -43,9 +43,9 @@ include_directories(
 
 ## library
 SET(${PROJECT_NAME}_HEADERS  
-  include/kalman/main/kalman.hpp
-  include/kalman/main/extendedkalman.hpp
-  include/kalman/objdyn/object_dynamics.hpp
+  include/kimm_object_estimation/main/kalman.hpp
+  include/kimm_object_estimation/main/extendedkalman.hpp
+  include/kimm_object_estimation/objdyn/object_dynamics.hpp
 )
 SET(${PROJECT_NAME}_SOURCES  
   src/main/kalman.cpp

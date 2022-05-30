@@ -3,8 +3,8 @@
 #include <Eigen/Dense>
 
 // #include "kalman/main/kalman.hpp"
-#include "kalman/main/extendedkalman.hpp"
-#include "kalman/objdyn/object_dynamics.hpp"
+#include "kimm_object_estimation/main/extendedkalman.hpp"
+#include "kimm_object_estimation/objdyn/object_dynamics.hpp"
 
 int main(int argc, char* argv[]) {
 
@@ -69,24 +69,28 @@ int main(int argc, char* argv[]) {
   Eigen::VectorXd vel(6);
   Eigen::VectorXd acc(6);
   // Eigen::MatrixXd HJacobian;  
-  Eigen::VectorXd param0(n);
-  double t = 0;
-
-  g << 0, 0, 9.81;                                //if we use {tool frame}, it shoud be a variable
+  Eigen::VectorXd param(n);
+  double t = 0;  
+  
+  // ************ robot *************** //
+  FT_measured.setZero();  
   vel.setZero();
   acc.setZero();
-  FT_measured.setZero();  
-  param0.setZero();                               //design parameter
+  g << 0, 0, 9.81;      
+  // ********************************** //
+
+
+  param.setZero();                               
 
   // Initialize the filter system
-  h = objdyn.h(param0, vel, acc, g);
-  H = objdyn.H(param0, vel, acc, g); 
+  h = objdyn.h(param, vel, acc, g);
+  H = objdyn.H(param, vel, acc, g); 
 
   // Construct the filter
   EKF ekf(dt,A, H, Q, R, P, h);
   
   // Initialize the filter  
-  ekf.init(t, param0);  
+  ekf.init(t, param);  
 
 
   /////////////////////////////////////////
@@ -96,19 +100,22 @@ int main(int argc, char* argv[]) {
   for(int i = 0; i < measurements.size(); i++) {
     t += dt;
 
-    //measred variables
+    // ************ robot *************** //
     FT_measured << measurements[i], measurements[i]+0.5, measurements[i]*0.2, measurements[i]*-1, measurements[i]-0.02, measurements[i]*0.02;
     vel <<        sin(2*M_PI*t),      sin(M_PI*t),      -2*sin(2*M_PI*t),       cos(M_PI*t),       0.1*cos(3*M_PI*t),         sin(5*M_PI*t);
     acc << 2*M_PI*sin(2*M_PI*t), M_PI*sin(M_PI*t), -4*M_PI*sin(2*M_PI*t),  M_PI*cos(M_PI*t),  0.3*M_PI*cos(3*M_PI*t),  5*M_PI*sin(5*M_PI*t);
+    g << 0, 0, 9.81;      
+    // ********************************** //
 
-    //filter system computation
-    h = objdyn.h(ekf.state(), vel, acc, g);
-    H = objdyn.H(ekf.state(), vel, acc, g); //ekf.state() = current estimated param    
+    //object dynamics update
+    h = objdyn.h(param, vel, acc, g);
+    H = objdyn.H(param, vel, acc, g); //ekf.state() = current estimated param    
 
-    // ekf.update(FT_measured);
+    //ekf update
     ekf.update(FT_measured, dt, A, H, h);
+    param = ekf.state();
     std::cout << "t = " << t << ", " << "FT_measured[" << i << "] = " << FT_measured.transpose()
-        << ", param_hat[" << i << "] = " << ekf.state().transpose() << std::endl;
+        << ", param_hat[" << i << "] = " << param.transpose() << std::endl;
   }   
   return 0;
 }
