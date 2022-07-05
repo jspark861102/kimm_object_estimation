@@ -82,6 +82,7 @@ VectorXd Objdyn::h(const VectorXd& param, const Vector6d& vel, const Vector6d& a
   // param = [m, cx, cy, cz, Ixx, Ixy, Ixz, Iyy, Iyz, Izz]
   // r_state = [drx, dry, drz, ddrx, ddry, ddrz, ddx, ddy, ddz, rx, ry, rz]
   // f & t is force at the tool coordinate. If we have force at the robot base coordinate, we should transform force from {base} to {tool}  
+  // ---> no, {base} is bette
 
   // r^fo = m(ar + alpha*r^Po + omega*(omgega*r^Po) - g)
   // r^to = Ir'alpha + omega*(Ir'omega) + m'r^Po*(ar - g)
@@ -89,8 +90,8 @@ VectorXd Objdyn::h(const VectorXd& param, const Vector6d& vel, const Vector6d& a
   //      r^to = tr + th  - h^Pr*fh
   //      Ir = Io + m'r^Po*r^Po
   // threfore,
-  //      measred : ar, alpha, omega, (theta), fr, tr
-  //      unkown (measured) : fh, th, h^Pr
+  //      measred : ar, alpha, omega, (vr), fr, tr
+  //      unkown (or measured) : fh, th, h^Pr
   //      to be identified : x
 
   // h = [m(ar + alpha*r^Po + omega*(omgega*r^Po) - g);
