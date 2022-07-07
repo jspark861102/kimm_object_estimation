@@ -45,7 +45,7 @@ void EKF::update(const Eigen::VectorXd& y) {
   P = A*P*A.transpose() + Q;
 
   //correction
-  K = P*H.transpose()*(H*P*H.transpose() + R).inverse();
+  K = P*H.transpose()*((H*P*H.transpose() + R).inverse());
   x_hat_new += K * (y - h);
   P = (I - K*H)*P;
   x_hat = x_hat_new;
