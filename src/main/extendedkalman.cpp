@@ -58,6 +58,17 @@ void EKF::update(const Eigen::VectorXd& y, double dt, const Eigen::MatrixXd A, c
   this->A = A;
   this->H = H;
   this->h = h;
+  this->dt = dt;  
+  update(y);
+}
+
+void EKF::update(const Eigen::VectorXd& y, double dt, const Eigen::MatrixXd A, const Eigen::MatrixXd H, const Eigen::VectorXd h, const Eigen::MatrixXd Q, const Eigen::MatrixXd R) {
+
+  this->A = A;
+  this->H = H;
+  this->h = h;
   this->dt = dt;
+  this->Q = Q;
+  this->R = R;
   update(y);
 }
